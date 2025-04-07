@@ -1,0 +1,49 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: "ca-central-1"
+    BACKEND_REPO_URI: "688567298614.dkr.ecr.ca-central-1.amazonaws.com/irene-backend"
+    FRONTEND_REPO_URI: "688567298614.dkr.ecr.ca-central-1.amazonaws.com/irene-frontend"
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - echo Logging into $BACKEND_REPO_URI and $FRONTEND_REPO_URI
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $BACKEND_REPO_URI
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $FRONTEND_REPO_URI
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the backend Docker image...
+      - docker build -t $BACKEND_REPO_URI:$IMAGE_TAG ./backend
+      - echo Building the frontend Docker image...
+      - docker build -t $FRONTEND_REPO_URI:$IMAGE_TAG ./frontend
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the backend image to ECR...
+      - docker push $BACKEND_REPO_URI:$IMAGE_TAG
+      - echo Pushing the frontend image to ECR...
+      - docker push $FRONTEND_REPO_URI:$IMAGE_TAG
+      - echo "Creating imagedefinitions.json..."
+      - >
+        echo '[
+          {
+            "name": "irene-backend",
+            "imageUri": "'$BACKEND_REPO_URI:$IMAGE_TAG'"
+          },
+          {
+            "name": "irene-frontend",
+            "imageUri": "'$FRONTEND_REPO_URI:$IMAGE_TAG'"
+          }
+        ]' > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
