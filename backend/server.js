@@ -14,7 +14,7 @@ import { connectDB } from "./lib/db.js";
 dotenv.config();
 const app = express();
 
-const VITE_CLIENT_URL = 'http://frontend-alb-1101366527.ca-central-1.elb.amazonaws.com.com'; 
+const VITE_CLIENT_URL = 'http://frontend-alb-1101366527.ca-central-1.elb.amazonaws.com'; 
 
 // Set up CORS to allow access from frontend
 app.use(cors({
