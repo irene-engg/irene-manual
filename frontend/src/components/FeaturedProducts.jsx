@@ -4,7 +4,7 @@ import { useCartStore } from "../stores/useCartStore";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 
-const FeaturedProducts = ({ featuredProducts }) => {
+const FeaturedProducts = ({ featuredProducts = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(4);
   const { user } = useUserStore();
@@ -46,11 +46,11 @@ const FeaturedProducts = ({ featuredProducts }) => {
   };
 
   const isStartDisabled = currentIndex === 0;
-  const isEndDisabled = currentIndex >= featuredProducts.length - itemsPerPage;
+  const isEndDisabled = currentIndex >= (featuredProducts?.length || 0) - itemsPerPage;
 
-  const filteredFeaturedProducts = featuredProducts.filter(
-    (product) => product.quantity > 0
-  );
+  const filteredFeaturedProducts = featuredProducts?.filter?.(
+    (product) => product?.quantity > 0
+  ) || [];
 
   return (
     <div className="py-12">
@@ -93,12 +93,12 @@ const FeaturedProducts = ({ featuredProducts }) => {
                         className="w-full bg-black hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg hover:rounded-full transition-colors duration-300 
 												flex items-center justify-center"
                       >
-                         {featuredProducts.quantity === 0 ? (
+                         {product.quantity === 0 ? (
                                    ""
                                  ) : (
                                    <ShoppingCart size={22} className="mr-2" />
                                  )}
-                                 {featuredProducts.quantity === 0 ? "Out of Stock" : "Add to Cart"}
+                                 {product.quantity === 0 ? "Out of Stock" : "Add to Cart"}
                       </button>
                     </div>
                   </div>

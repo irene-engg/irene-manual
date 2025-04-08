@@ -29,10 +29,11 @@ export const useProductStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.get("/products");
-      set({ products: response.data.products, loading: false });
+      set({ products: response?.data?.products || [], loading: false });
     } catch (error) {
-      set({ error: "Failed to fetch products", loading: false });
-      toast.error(error.response.data.error || "Failed to fetch products");
+      console.error("Error fetching products:", error);
+      set({ products: [], error: "Failed to fetch products", loading: false });
+      toast.error(error.response?.data?.error || "Failed to fetch products");
     }
   },
 
@@ -88,9 +89,10 @@ export const useProductStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.get("/products/featured");
-      set({ featuredProducts: response.data, loading: false });
+      set({ featuredProducts: response?.data || [], loading: false });
     } catch (error) {
-      set({ error: "Failed to fetch products", loading: false });
+      console.error("Error fetching featured products:", error);
+      set({ featuredProducts: [], error: "Failed to fetch products", loading: false });
      }
   },
 

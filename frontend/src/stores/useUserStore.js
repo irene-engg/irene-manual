@@ -51,19 +51,20 @@ export const useUserStore = create((set, get) => ({
       const res = await axios.post("/auth/login", { email, password });
 
       // Store the token in localStorage
-      if (res.data.token) {
+      if (res?.data?.token) {
         localStorage.setItem("authToken", res.data.token);
       }
 
-      set({ user: res.data, loading: false });
-      if (res.data.role === "admin") {
+      set({ user: res?.data || null, loading: false });
+      if (res?.data?.role === "admin") {
         window.location.href = "/secret-dashboard";
       } else {
         window.location.href = "/";
       }
     } catch (error) {
+      console.error("Login error:", error);
       set({ loading: false });
-      toast.error(error.response.data.message || "An error occurred");
+      toast.error(error.response?.data?.message || "Connection error. Please try again later.");
     }
   },
 

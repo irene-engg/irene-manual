@@ -14,7 +14,8 @@ const axiosInstance = axios.create({
 	baseURL: import.meta.env.MODE === "development" 
 		? "http://localhost:5004/api" 
 		: "http://backend-alb-533886281.ca-central-1.elb.amazonaws.com:5000/api", // ALB DNS with port for production
-	withCredentials: true, 
+	withCredentials: true,
+	timeout: 10000, // Add timeout to prevent long hanging requests
 });
 
 // Add a request interceptor to attach the auth token to all requests
@@ -27,6 +28,19 @@ axiosInstance.interceptors.request.use(
 		return config;
 	},
 	(error) => {
+		console.error("Request error:", error);
+		return Promise.reject(error);
+	}
+);
+
+// Add response interceptor to handle common errors
+axiosInstance.interceptors.response.use(
+	response => response,
+	error => {
+		if (error.code === 'ECONNABORTED' || !error.response) {
+			console.error('Network error - connection timed out or server unreachable');
+			// You can add custom error handling here
+		}
 		return Promise.reject(error);
 	}
 );
