@@ -13,7 +13,7 @@ import axios from "axios";
 const axiosInstance = axios.create({
 	baseURL: import.meta.env.MODE === "development" 
 		? "http://localhost:5004/api" 
-		: "http://backend-alb-657621.ca-central-1.elb.amazonaws.com:5000/api", // ALB DNS with port for production
+		: "http://backend-alb-533886281.ca-central-1.elb.amazonaws.com:5000/api", // ALB DNS with port for production
 	withCredentials: true, 
 });
 
