@@ -75,30 +75,29 @@ app.use(cors({
   credentials: true,
 }));
 
-// ✅ Middlewares
+// Middlewares
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
-// ✅ Routes
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api", orderRoutes);
 
-// ✅ Serve frontend build if NODE_ENV=production (Optional)
+// Serve frontend build if NODE_ENV=production (Optional)
 const __dirname = path.resolve();
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
-
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });
 }
 
-// ✅ Launch the backend server
+// Launch the backend server
 const PORT = process.env.BACKEND_PORT || 5000;
 app.listen(PORT, () => {
-  console.log(✅ Backend is running on http://localhost:${PORT});
+  console.log("Backend is running on http://localhost:" + PORT);
   connectDB();
 });
