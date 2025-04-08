@@ -99,6 +99,6 @@ if (process.env.NODE_ENV === "production") {
 // ✅ Launch the backend server
 const PORT = process.env.BACKEND_PORT || 5000;
 app.listen(PORT, () => {
-  console.log(✅ Backend is running on http://localhost:${PORT});
+  console.log(`✅ Backend is running on http://localhost:${PORT}`);
   connectDB();
 });
