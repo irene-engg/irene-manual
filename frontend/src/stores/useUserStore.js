@@ -50,6 +50,11 @@ export const useUserStore = create((set, get) => ({
     try {
       const res = await axios.post("/auth/login", { email, password });
 
+      // Store the token in localStorage
+      if (res.data.token) {
+        localStorage.setItem("authToken", res.data.token);
+      }
+
       set({ user: res.data, loading: false });
       if (res.data.role === "admin") {
         window.location.href = "/secret-dashboard";
@@ -65,6 +70,8 @@ export const useUserStore = create((set, get) => ({
   logout: async () => {
     try {
       await axios.post("/auth/logout");
+      // Clear the token from localStorage
+      localStorage.removeItem("authToken");
       set({ user: null });
       window.location.href = "/";
     } catch (error) {
@@ -81,6 +88,21 @@ export const useUserStore = create((set, get) => ({
       const response = await axios.get("/auth/profile");
       set({ user: response.data, checkingAuth: false });
     } catch (error) {
+      // If we get a 401 error, try to refresh the token
+      if (error.response?.status === 401) {
+        try {
+          await get().refreshToken();
+          // Retry the profile request after refreshing the token
+          const response = await axios.get("/auth/profile");
+          set({ user: response.data, checkingAuth: false });
+          return;
+        } catch (refreshError) {
+          // If refresh fails, clear the token and set user to null
+          localStorage.removeItem("authToken");
+          set({ checkingAuth: false, user: null });
+          return;
+        }
+      }
       set({ checkingAuth: false, user: null });
     }
   },
