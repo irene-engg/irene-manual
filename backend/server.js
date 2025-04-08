@@ -19,9 +19,42 @@ const VITE_CLIENT_URL = process.env.CLIENT_URL || "http://frontend-alb-108565823
 
 // ✅ CORS Setup for secure cross-origin cookie sharing
 app.use(cors({
-	origin: [VITE_CLIENT_URL, "http://localhost:3000", "http://localhost:5173", "http://localhost"],
-	credentials: true,
+	origin: function(origin, callback) {
+		// Allow requests with no origin (like mobile apps, curl requests)
+		if(!origin) return callback(null, true);
+		
+		// List of allowed origins
+		const allowedOrigins = [
+			'http://frontend-alb-1085658235.ca-central-1.elb.amazonaws.com',
+			'http://localhost:3000',
+			'http://localhost:5173',
+			'http://localhost'
+		];
+		
+		if(allowedOrigins.indexOf(origin) !== -1 || !origin) {
+			callback(null, true);
+		} else {
+			console.log('Blocked by CORS: ', origin);
+			callback(null, true); // Temporarily allow all origins
+		}
+	},
+	credentials: true
 }));
+
+// Add custom CORS headers for preflight requests
+app.use((req, res, next) => {
+	res.header('Access-Control-Allow-Origin', req.headers.origin);
+	res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+	res.header('Access-Control-Allow-Credentials', 'true');
+	
+	// Handle preflight requests
+	if (req.method === 'OPTIONS') {
+		return res.status(200).end();
+	}
+	
+	next();
+});
 
 // Middlewares
 app.use(express.json({ limit: "10mb" }));

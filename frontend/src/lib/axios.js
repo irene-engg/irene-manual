@@ -16,6 +16,10 @@ const axiosInstance = axios.create({
 		: "http://backend-alb-533886281.ca-central-1.elb.amazonaws.com:5000/api", // ALB DNS with port for production
 	withCredentials: true,
 	timeout: 10000, // Add timeout to prevent long hanging requests
+	headers: {
+		'Content-Type': 'application/json',
+		'Accept': 'application/json',
+	}
 });
 
 // Add a request interceptor to attach the auth token to all requests
